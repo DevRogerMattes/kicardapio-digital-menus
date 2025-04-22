@@ -1,16 +1,19 @@
 
 import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
-
-// Utiliza o ambiente configurado pelo Lovable/Supabase integration
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 export function useAuthRestaurant() {
   const [restaurantId, setRestaurantId] = useState<string | null>(null);
+  const [configError, setConfigError] = useState<boolean>(false);
 
   useEffect(() => {
+    // Check if Supabase is properly configured
+    if (!isSupabaseConfigured()) {
+      console.error("Supabase is not properly configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY environment variables.");
+      setConfigError(true);
+      return;
+    }
+
     const getUserRestaurant = async () => {
       const session = await supabase.auth.getSession();
       const user = session.data?.session?.user;
