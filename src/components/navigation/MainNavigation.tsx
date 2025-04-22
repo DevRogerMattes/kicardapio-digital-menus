@@ -55,7 +55,7 @@ const MainNavigation: React.FC = () => {
             <Button variant="outline" size="sm" asChild>
               <Link to="/login">Login</Link>
             </Button>
-            <Button asChild>
+            <Button asChild className="bg-primarypurple hover:bg-darkpurple text-white font-bold">
               <Link to="/cadastro">Começar Grátis</Link>
             </Button>
           </div>

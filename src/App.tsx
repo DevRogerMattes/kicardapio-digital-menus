@@ -10,6 +10,8 @@ import AdminDashboard from "./pages/AdminDashboard";
 import QRCodePage from "./pages/QRCodePage";
 import PlansPage from "./pages/PlansPage";
 import ProductsPage from "./pages/admin/Products";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +32,10 @@ const App = () => (
           {/* Admin Routes */}
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/products" element={<ProductsPage />} />
+          
+          {/* Login and Register Routes */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/cadastro" element={<RegisterPage />} />
           
           {/* Catch-all route */}
           <Route path="*" element={<NotFound />} />

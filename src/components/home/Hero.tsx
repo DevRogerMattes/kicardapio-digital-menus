@@ -19,7 +19,7 @@ const Hero: React.FC = () => {
           <div className="flex flex-col sm:flex-row gap-4">
             <Button
               size="lg"
-              className="bg-white text-kicardapio-red hover:bg-white/90"
+              className="bg-primarypurple hover:bg-darkpurple text-white text-lg font-bold"
               asChild
             >
               <Link to="/cadastro">Começar Grátis</Link>

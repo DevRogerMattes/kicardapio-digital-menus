@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -43,6 +42,12 @@
     --sidebar-accent-foreground: 15 10% 15%;
     --sidebar-border: 15 13% 91%;
     --sidebar-ring: 15 91.2% 59.8%;
+
+    --primarypurple: #9b87f5;
+    --darkpurple: #1A1F2C;
+    --lightpurple: #D6BCFA;
+    --softgray: #F1F0FB;
+    --neutralgray: #8E9196;
   }
 
   .dark {
@@ -106,3 +111,12 @@
     grid-template-columns: 1fr;
   }
 }
+
+.bg-primarypurple { background: var(--primarypurple); }
+.bg-darkpurple { background: var(--darkpurple); }
+.bg-softgray { background: var(--softgray); }
+.text-primarypurple { color: var(--primarypurple); }
+.text-darkpurple { color: var(--darkpurple); }
+.text-neutralgray { color: var(--neutralgray); }
+.border-primarypurple { border-color: var(--primarypurple); }
+.hover\:bg-darkpurple:hover { background: var(--darkpurple); }
