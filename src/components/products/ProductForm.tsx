@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -16,7 +17,7 @@ interface ProductFormProps {
 const ProductForm: React.FC<ProductFormProps> = ({ product, onComplete }) => {
   const { upsertProduct, uploadingImg } = useProducts();
   const { categories } = useCategories();
-  const { optionals } = useOptionals();
+  const { optionalGroups } = useOptionals();
   const [defaultObservations, setDefaultObservations] = useState<string[]>([]);
 
   const { register, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm({
@@ -129,7 +130,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onComplete }) => {
             {...register("optionals_ids")}
             className="w-full border h-24 rounded px-2"
           >
-            {optionals.map((og:any) => (
+            {optionalGroups.map((og:any) => (
               <option key={og.id} value={og.id}>{og.name}</option>
             ))}
           </select>

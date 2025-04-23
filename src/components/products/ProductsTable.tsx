@@ -14,7 +14,7 @@ interface ProductsTableProps {
 const ProductsTable: React.FC<ProductsTableProps> = ({ onEditProduct }) => {
   const { products, isLoading, removeProduct } = useProducts();
   const { categories } = useCategories();
-  const { optionals } = useOptionals();
+  const { optionalGroups } = useOptionals();
 
   if (isLoading) return <div>Carregando...</div>;
 
