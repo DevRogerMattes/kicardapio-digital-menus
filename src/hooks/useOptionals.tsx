@@ -17,21 +17,21 @@ export function useOptionals() {
   const loadOptionals = async () => {
     setIsLoading(true);
     const { data, error } = await supabase
-      .from("option_groups")
+      .from("optionals")
       .select("*")
       .eq("tenant_id", restaurantId)
       .order("created_at", { ascending: false });
 
     if (error) {
-      toast.error("Erro ao carregar opcionais");
+      toast.error("Erro ao carregar itens opcionais");
     } else {
       setOptionalGroups(data || []);
     }
     setIsLoading(false);
   };
 
-  const createOptionalGroup = async (values: any) => {
-    const { error } = await supabase.from("option_groups").insert([
+  const createOptionalItem = async (values: any) => {
+    const { error } = await supabase.from("optionals").insert([
       {
         ...values,
         tenant_id: restaurantId,
@@ -39,11 +39,11 @@ export function useOptionals() {
     ]);
 
     if (error) {
-      toast.error("Erro ao criar grupo de opcionais");
+      toast.error("Erro ao criar item opcional");
       return false;
     }
 
-    toast.success("Grupo de opcionais criado com sucesso!");
+    toast.success("Item opcional criado com sucesso!");
     loadOptionals();
     return true;
   };
@@ -51,7 +51,7 @@ export function useOptionals() {
   return {
     optionalGroups,
     isLoading,
-    createOptionalGroup,
+    createOptionalItem,
     reload: loadOptionals,
   };
 }

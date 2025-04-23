@@ -13,17 +13,17 @@ export default function OptionalsPage() {
   return (
     <div className="container mx-auto py-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Opcionais</h1>
+        <h1 className="text-3xl font-bold">Itens Opcionais</h1>
         <Sheet open={isCreating} onOpenChange={setIsCreating}>
           <SheetTrigger asChild>
             <Button>
               <Plus className="mr-2" />
-              Novo Grupo de Opcionais
+              Novo Item Opcional
             </Button>
           </SheetTrigger>
           <SheetContent>
             <SheetHeader>
-              <SheetTitle>Novo Grupo de Opcionais</SheetTitle>
+              <SheetTitle>Novo Item Opcional</SheetTitle>
             </SheetHeader>
             <OptionalForm onSuccess={() => setIsCreating(false)} />
           </SheetContent>
@@ -32,7 +32,7 @@ export default function OptionalsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Grupos de Opcionais</CardTitle>
+          <CardTitle>Itens Opcionais</CardTitle>
         </CardHeader>
         <CardContent>
           <OptionalsList />

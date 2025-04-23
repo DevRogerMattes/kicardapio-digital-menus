@@ -11,8 +11,7 @@ interface OptionalFormProps {
   defaultValues?: {
     name: string;
     description?: string;
-    minSelection: number;
-    maxSelection: number;
+    price: number;
   };
 }
 
@@ -21,15 +20,14 @@ export function OptionalForm({ onSuccess, defaultValues }: OptionalFormProps) {
     defaultValues: defaultValues || {
       name: "",
       description: "",
-      minSelection: 0,
-      maxSelection: 1,
+      price: 0,
     },
   });
 
-  const { createOptionalGroup } = useOptionals();
+  const { createOptionalItem } = useOptionals();
 
   const onSubmit = async (values: any) => {
-    const success = await createOptionalGroup(values);
+    const success = await createOptionalItem(values);
     if (success && onSuccess) {
       onSuccess();
     }
@@ -43,9 +41,9 @@ export function OptionalForm({ onSuccess, defaultValues }: OptionalFormProps) {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nome do Grupo</FormLabel>
+              <FormLabel>Nome do Item Opcional</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="Ex: Sabores, Acompanhamentos..." />
+                <Input {...field} placeholder="Ex: Queijo extra, Bacon adicional..." />
               </FormControl>
             </FormItem>
           )}
@@ -58,39 +56,30 @@ export function OptionalForm({ onSuccess, defaultValues }: OptionalFormProps) {
             <FormItem>
               <FormLabel>Descrição (opcional)</FormLabel>
               <FormControl>
-                <Textarea {...field} placeholder="Descreva este grupo de opcionais..." />
+                <Textarea {...field} placeholder="Descreva este item opcional..." />
               </FormControl>
             </FormItem>
           )}
         />
 
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="minSelection"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Mínimo de seleções</FormLabel>
-                <FormControl>
-                  <Input type="number" min={0} {...field} />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="maxSelection"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Máximo de seleções</FormLabel>
-                <FormControl>
-                  <Input type="number" min={1} {...field} />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-        </div>
+        <FormField
+          control={form.control}
+          name="price"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Preço Adicional (R$)</FormLabel>
+              <FormControl>
+                <Input 
+                  type="number" 
+                  step="0.01" 
+                  min="0" 
+                  {...field} 
+                  onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
 
         <Button type="submit" className="w-full">
           Salvar

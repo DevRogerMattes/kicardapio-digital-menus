@@ -17,18 +17,16 @@ export function OptionalsList() {
         <TableRow>
           <TableHead>Nome</TableHead>
           <TableHead>Descrição</TableHead>
-          <TableHead>Mín. Seleções</TableHead>
-          <TableHead>Máx. Seleções</TableHead>
+          <TableHead>Preço Adicional</TableHead>
           <TableHead>Ações</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {optionalGroups?.map((group) => (
-          <TableRow key={group.id}>
-            <TableCell>{group.name}</TableCell>
-            <TableCell>{group.description}</TableCell>
-            <TableCell>{group.minSelection}</TableCell>
-            <TableCell>{group.maxSelection}</TableCell>
+        {optionalGroups?.map((item) => (
+          <TableRow key={item.id}>
+            <TableCell>{item.name}</TableCell>
+            <TableCell>{item.description || '-'}</TableCell>
+            <TableCell>R$ {Number(item.price || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</TableCell>
             <TableCell>
               <div className="flex gap-2">
                 <Button variant="outline" size="icon">
@@ -41,6 +39,13 @@ export function OptionalsList() {
             </TableCell>
           </TableRow>
         ))}
+        {optionalGroups?.length === 0 && (
+          <TableRow>
+            <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+              Nenhum item opcional cadastrado
+            </TableCell>
+          </TableRow>
+        )}
       </TableBody>
     </Table>
   );
