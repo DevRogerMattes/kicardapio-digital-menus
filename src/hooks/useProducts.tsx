@@ -77,6 +77,7 @@ export function useProducts() {
       image_url = supabase.storage.from("products").getPublicUrl(path).data.publicUrl;
       setUploadingImg(false);
     }
+    
     const newProd = {
       name: prod.name,
       description: prod.description,
@@ -84,7 +85,9 @@ export function useProducts() {
       image_url,
       category_id: prod.category_id,
       has_optionals: prod.has_optionals,
+      optionals_ids: prod.optionals_ids,
       observations: prod.observations,
+      default_observations: prod.default_observations || [],
       active: prod.active,
       restaurant_id: restaurantId,
     };

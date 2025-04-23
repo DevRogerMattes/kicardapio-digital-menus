@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -7,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { useCategories } from "@/hooks/useCategories";
 import { useOptionals } from "@/hooks/useOptionals";
 import { useProducts } from "@/hooks/useProducts";
+import ProductObservations from "./ProductObservations";
 
 interface ProductFormProps {
   product?: any;
@@ -17,6 +17,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onComplete }) => {
   const { upsertProduct, uploadingImg } = useProducts();
   const { categories } = useCategories();
   const { optionals } = useOptionals();
+  const [defaultObservations, setDefaultObservations] = useState<string[]>([]);
 
   const { register, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm({
     defaultValues: {
@@ -29,6 +30,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onComplete }) => {
       optionals_ids: [],
       observations: "",
       active: true,
+      default_observations: [],
     },
     values: product ? {
       ...product,
@@ -38,31 +40,39 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onComplete }) => {
       optionals_ids: product.optionals_ids || [],
       observations: product.observations || "",
       active: product.active ?? true,
+      default_observations: product.default_observations || [],
     } : undefined
   });
 
   useEffect(() => {
-    if (product) {
-      reset({
-        ...product,
-        price: String(product.price),
-        category_id: product.category_id,
-        has_optionals: !!product.has_optionals,
-        optionals_ids: product.optionals_ids || [],
-        observations: product.observations || "",
-        active: product.active ?? true,
-      });
+    if (product?.default_observations) {
+      setDefaultObservations(product.default_observations);
     }
-  }, [product, reset]);
+  }, [product]);
 
   const hasOptionals = watch("has_optionals");
+  const observations = watch("observations");
 
   const onSubmit = async (data: any) => {
-    const ok = await upsertProduct({ ...data, id: product?.id });
+    const formData = {
+      ...data,
+      default_observations: defaultObservations,
+      id: product?.id
+    };
+    
+    const ok = await upsertProduct(formData);
     if (ok) {
       onComplete();
       reset();
     }
+  };
+
+  const handleAddObservation = (observation: string) => {
+    setDefaultObservations([...defaultObservations, observation]);
+  };
+
+  const handleRemoveObservation = (index: number) => {
+    setDefaultObservations(defaultObservations.filter((_, i) => i !== index));
   };
 
   return (
@@ -79,7 +89,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onComplete }) => {
       <div className="grid grid-cols-2 gap-3">
         <div>
           <Label>Preço *</Label>
-          <Input type="number" step="0.01" min="0"
+          <Input 
+            type="number" 
+            step="0.01" 
+            min="0"
             {...register("price", { required: true, valueAsNumber: true })}
             placeholder="0.00"
           />
@@ -122,10 +135,13 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onComplete }) => {
           </select>
         </div>
       )}
-      <div>
-        <Label>Observações padrão</Label>
-        <Input {...register("observations")} placeholder="Exemplo: Sem cebola, Bem passado..." />
-      </div>
+      <ProductObservations
+        defaultObservations={defaultObservations}
+        onAddObservation={handleAddObservation}
+        onRemoveObservation={handleRemoveObservation}
+        customObservation={observations}
+        onCustomObservationChange={(value) => setValue("observations", value)}
+      />
       <div className="flex items-center gap-3">
         <input type="checkbox" {...register("active")} id="active" />
         <Label htmlFor="active">Ativo</Label>
@@ -137,7 +153,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onComplete }) => {
         </Button>
       </div>
     </form>
-  )
+  );
 };
 
 export default ProductForm;
