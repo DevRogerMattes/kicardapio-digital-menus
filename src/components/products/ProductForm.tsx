@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -86,6 +87,19 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onComplete }) => {
         [optionalId]: newQty
       };
     });
+  };
+
+  // Add these missing handler functions
+  const handleAddObservation = (observation: string) => {
+    setDefaultObservations(prev => [...prev, observation]);
+    setValue("default_observations", [...defaultObservations, observation]);
+  };
+
+  const handleRemoveObservation = (index: number) => {
+    const newObservations = [...defaultObservations];
+    newObservations.splice(index, 1);
+    setDefaultObservations(newObservations);
+    setValue("default_observations", newObservations);
   };
 
   const onSubmit = async (data: any) => {
