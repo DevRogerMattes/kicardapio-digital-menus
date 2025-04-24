@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,8 @@ import { useCategories } from "@/hooks/useCategories";
 import { useOptionals } from "@/hooks/useOptionals";
 import { useProducts } from "@/hooks/useProducts";
 import ProductObservations from "./ProductObservations";
+import { Checkbox } from "@/components/ui/checkbox"
+import { Check, Minus, Plus } from "lucide-react"
 
 interface ProductFormProps {
   product?: any;
@@ -54,10 +55,43 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onComplete }) => {
   const hasOptionals = watch("has_optionals");
   const observations = watch("observations");
 
+  const [selectedOptionals, setSelectedOptionals] = useState<{[key: string]: number}>(
+    product?.optionals_ids?.reduce((acc: any, id: string) => ({ ...acc, [id]: 1 }), {}) || {}
+  );
+
+  const handleOptionalToggle = (optionalId: string, checked: boolean) => {
+    setSelectedOptionals(prev => {
+      const newState = { ...prev };
+      if (checked) {
+        newState[optionalId] = 1;
+      } else {
+        delete newState[optionalId];
+      }
+      setValue("optionals_ids", Object.keys(newState));
+      return newState;
+    });
+  };
+
+  const handleQuantityChange = (optionalId: string, increment: boolean) => {
+    setSelectedOptionals(prev => {
+      const currentQty = prev[optionalId] || 0;
+      const optional = optionalGroups.find((o: any) => o.id === optionalId);
+      if (!optional) return prev;
+
+      let newQty = increment ? currentQty + 1 : currentQty - 1;
+      newQty = Math.max(optional.min_selection, Math.min(newQty, optional.max_selection));
+
+      return {
+        ...prev,
+        [optionalId]: newQty
+      };
+    });
+  };
+
   const onSubmit = async (data: any) => {
     const formData = {
       ...data,
-      default_observations: defaultObservations,
+      optionals_quantities: selectedOptionals,
       id: product?.id
     };
     
@@ -66,14 +100,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onComplete }) => {
       onComplete();
       reset();
     }
-  };
-
-  const handleAddObservation = (observation: string) => {
-    setDefaultObservations([...defaultObservations, observation]);
-  };
-
-  const handleRemoveObservation = (index: number) => {
-    setDefaultObservations(defaultObservations.filter((_, i) => i !== index));
   };
 
   return (
@@ -122,20 +148,59 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onComplete }) => {
         <input type="checkbox" {...register("has_optionals")} id="has_optionals" />
         <Label htmlFor="has_optionals">Este produto possui opcionais?</Label>
       </div>
+
       {hasOptionals && (
-        <div>
-          <Label>Grupos de Opcionais</Label>
-          <select
-            multiple
-            {...register("optionals_ids")}
-            className="w-full border h-24 rounded px-2"
-          >
-            {optionalGroups.map((og:any) => (
-              <option key={og.id} value={og.id}>{og.name}</option>
+        <div className="space-y-4 border rounded-lg p-4">
+          <Label>Itens Opcionais</Label>
+          <div className="space-y-2">
+            {optionalGroups.map((optional: any) => (
+              <div key={optional.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                <div className="flex items-center gap-3">
+                  <Checkbox
+                    checked={!!selectedOptionals[optional.id]}
+                    onCheckedChange={(checked) => handleOptionalToggle(optional.id, checked as boolean)}
+                  />
+                  <div>
+                    <p className="font-medium">{optional.name}</p>
+                    <p className="text-sm text-gray-500">
+                      R$ {Number(optional.price).toLocaleString('pt-BR', {minimumFractionDigits: 2})}
+                    </p>
+                  </div>
+                </div>
+                
+                {selectedOptionals[optional.id] && (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => handleQuantityChange(optional.id, false)}
+                      disabled={selectedOptionals[optional.id] <= optional.min_selection}
+                    >
+                      <Minus className="h-4 w-4" />
+                    </Button>
+                    <span className="min-w-[2rem] text-center">
+                      {selectedOptionals[optional.id]}
+                    </span>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => handleQuantityChange(optional.id, true)}
+                      disabled={selectedOptionals[optional.id] >= optional.max_selection}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+              </div>
             ))}
-          </select>
+          </div>
         </div>
       )}
+
       <ProductObservations
         defaultObservations={defaultObservations}
         onAddObservation={handleAddObservation}

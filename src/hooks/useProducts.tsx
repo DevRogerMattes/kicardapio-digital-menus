@@ -86,6 +86,7 @@ export function useProducts() {
       category_id: prod.category_id,
       has_optionals: prod.has_optionals,
       optionals_ids: prod.optionals_ids,
+      optionals_quantities: prod.optionals_quantities,
       observations: prod.observations,
       default_observations: prod.default_observations || [],
       active: prod.active,
