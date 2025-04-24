@@ -31,6 +31,12 @@ export function useOptionals() {
   };
 
   const createOptionalItem = async (values: any) => {
+    // Validate that max_selection is greater than or equal to min_selection
+    if (values.max_selection < values.min_selection) {
+      toast.error("O valor máximo deve ser maior ou igual ao valor mínimo");
+      return false;
+    }
+
     const { error } = await supabase.from("optionals").insert([
       {
         ...values,

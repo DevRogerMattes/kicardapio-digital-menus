@@ -12,6 +12,8 @@ interface OptionalFormProps {
     name: string;
     description?: string;
     price: number;
+    min_selection: number;
+    max_selection: number;
   };
 }
 
@@ -21,6 +23,8 @@ export function OptionalForm({ onSuccess, defaultValues }: OptionalFormProps) {
       name: "",
       description: "",
       price: 0,
+      min_selection: 0,
+      max_selection: 1,
     },
   });
 
@@ -43,7 +47,7 @@ export function OptionalForm({ onSuccess, defaultValues }: OptionalFormProps) {
             <FormItem>
               <FormLabel>Nome do Item Opcional</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="Ex: Queijo extra, Bacon adicional..." />
+                <Input {...field} placeholder="Ex: Queijo extra, Ovo adicional..." />
               </FormControl>
             </FormItem>
           )}
@@ -80,6 +84,44 @@ export function OptionalForm({ onSuccess, defaultValues }: OptionalFormProps) {
             </FormItem>
           )}
         />
+
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="min_selection"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Mínimo</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    min="0" 
+                    {...field}
+                    onChange={(e) => field.onChange(parseInt(e.target.value))}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="max_selection"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Máximo</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    min="1" 
+                    {...field}
+                    onChange={(e) => field.onChange(parseInt(e.target.value))}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        </div>
 
         <Button type="submit" className="w-full">
           Salvar
