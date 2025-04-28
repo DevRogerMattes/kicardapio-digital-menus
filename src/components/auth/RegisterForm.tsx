@@ -2,10 +2,10 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { supabase } from "@/lib/supabase";
-import { Mail, Lock, User } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { Mail, Lock } from "lucide-react";
+import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { registerUser } from "@/lib/authService";
 
 export const RegisterForm: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -17,23 +17,17 @@ export const RegisterForm: React.FC = () => {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await supabase.auth.signUp({
-      email,
-      password: senha,
-    });
-
-    if (error) {
-      toast({ title: "Erro ao cadastrar", description: error.message, variant: "destructive" });
+    const { user, error } = await registerUser(email, senha);
+    
+    if (error || !user) {
+      toast.error(error || "Erro ao registrar usuário");
       setLoading(false);
-    } else {
-      toast({
-        title: "Cadastro realizado!",
-        description: "Verifique seu e-mail para confirmar a conta.",
-      });
-      setLoading(false);
-      // Navega pra login para confirmar conta ou fluxo automático
-      navigate("/login");
+      return;
     }
+    
+    toast.success("Cadastro realizado com sucesso!");
+    setLoading(false);
+    navigate("/login");
   }
 
   return (

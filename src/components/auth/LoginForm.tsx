@@ -2,10 +2,10 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { supabase } from "@/lib/supabase";
 import { Mail, Lock } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { loginWithEmail } from "@/lib/authService";
 
 export const LoginForm: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -16,15 +16,18 @@ export const LoginForm: React.FC = () => {
   const aoSubmeter = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
-    if (error) {
-      toast({ title: "Falha no login", description: error.message, variant: "destructive" });
+    
+    const { user, error } = await loginWithEmail(email, senha);
+    
+    if (error || !user) {
+      toast.error(error || "Erro ao fazer login");
       setLoading(false);
-    } else {
-      toast({ title: "Login realizado!", description: "Bem vindo!" });
-      setLoading(false);
-      navigate("/admin/dashboard");
+      return;
     }
+    
+    toast.success("Login realizado com sucesso!");
+    setLoading(false);
+    navigate("/admin/dashboard");
   };
 
   return (

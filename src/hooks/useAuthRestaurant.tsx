@@ -1,32 +1,46 @@
 
 import { useEffect, useState } from "react";
-import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { querySingle } from "@/lib/mysql";
+import { toast } from "sonner";
+
+// Simple session management
+// In a real application, you would use a more secure method like JWT
+const getCurrentUser = () => {
+  const user = localStorage.getItem('currentUser');
+  return user ? JSON.parse(user) : null;
+};
 
 export function useAuthRestaurant() {
   const [restaurantId, setRestaurantId] = useState<string | null>(null);
-  const [configError, setConfigError] = useState<boolean>(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if Supabase is properly configured
-    if (!isSupabaseConfigured()) {
-      console.error("Supabase is not properly configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY environment variables.");
-      setConfigError(true);
-      return;
-    }
+    const fetchUserRestaurant = async () => {
+      try {
+        const user = getCurrentUser();
+        if (!user || !user.id) {
+          setLoading(false);
+          return;
+        }
 
-    const getUserRestaurant = async () => {
-      const session = await supabase.auth.getSession();
-      const user = session.data?.session?.user;
-      if (!user) return;
-      // Buscar o restaurant_id do user - normalmente em profile do usuário
-      const { data, error } = await supabase
-        .from("restaurants_users")
-        .select("restaurant_id")
-        .eq("user_id", user.id)
-        .single();
-      if (!error && data) setRestaurantId(data.restaurant_id);
+        // Get restaurant_id from restaurants_users table
+        const userRestaurant = await querySingle(
+          `SELECT restaurant_id FROM restaurants_users WHERE user_id = ?`,
+          [user.id]
+        );
+
+        if (userRestaurant) {
+          setRestaurantId(userRestaurant.restaurant_id);
+        }
+      } catch (error) {
+        console.error("Error fetching restaurant ID:", error);
+        toast.error("Erro ao buscar informações do restaurante");
+      } finally {
+        setLoading(false);
+      }
     };
-    getUserRestaurant();
+
+    fetchUserRestaurant();
   }, []);
 
   return restaurantId;
