@@ -2,7 +2,7 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { qrCodeIcon } from "lucide-react";
+import { QrCodeIcon } from "lucide-react";
 
 interface QRCodesListProps {
   restaurantId: string | null;
@@ -28,7 +28,7 @@ const QRCodesList: React.FC<QRCodesListProps> = ({ restaurantId }) => {
           <CardContent className="flex flex-col items-center space-y-4">
             <div className="w-48 h-48 bg-gray-100 flex items-center justify-center rounded-lg">
               {/* Placeholder for QR Code image */}
-              <qrCodeIcon className="w-24 h-24 text-gray-400" />
+              <QrCodeIcon className="w-24 h-24 text-gray-400" />
             </div>
             <Button variant="outline" onClick={() => window.print()}>
               Imprimir QR Code
