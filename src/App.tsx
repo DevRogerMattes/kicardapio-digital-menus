@@ -14,6 +14,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import OptionalsPage from "./pages/admin/Optionals";
 import CategoriesPage from "./pages/admin/Categories";
+import QRCodesPage from "./pages/admin/QRCodes";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
           <Route path="/admin/products" element={<ProductsPage />} />
           <Route path="/admin/categorias" element={<CategoriesPage />} />
           <Route path="/admin/opcionais" element={<OptionalsPage />} />
+          <Route path="/admin/qrcodes" element={<QRCodesPage />} />
           
           {/* Login and Register Routes */}
           <Route path="/login" element={<LoginPage />} />
