@@ -24,7 +24,7 @@ export function useAuthRestaurant() {
         }
 
         // Get restaurant_id from restaurants_users table
-        const userRestaurant = await querySingle(
+        const userRestaurant = await querySingle<{ restaurant_id: string }>(
           `SELECT restaurant_id FROM restaurants_users WHERE user_id = ?`,
           [user.id]
         );

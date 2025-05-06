@@ -11,6 +11,14 @@ import { useAuthRestaurant } from "@/hooks/useAuthRestaurant";
 import { insert, executeQuery } from "@/lib/mysql";
 import QRCode from 'qrcode';
 
+interface RestaurantData {
+  slug: string;
+}
+
+interface TableQRCode {
+  table_number: string;
+}
+
 const QRCodesPage: React.FC = () => {
   const restaurantId = useAuthRestaurant();
   const [numberOfTables, setNumberOfTables] = useState<number>(1);
@@ -24,7 +32,7 @@ const QRCodesPage: React.FC = () => {
     
     const fetchRestaurantData = async () => {
       try {
-        const restaurant = await executeQuery(
+        const restaurant = await executeQuery<RestaurantData>(
           'SELECT slug FROM restaurants WHERE id = ?',
           [restaurantId]
         );
@@ -60,7 +68,7 @@ const QRCodesPage: React.FC = () => {
 
     try {
       // First check if there are existing QR codes
-      const existingQRCodes = await executeQuery(
+      const existingQRCodes = await executeQuery<TableQRCode>(
         'SELECT table_number FROM table_qr_codes WHERE restaurant_id = ?',
         [restaurantId]
       );
