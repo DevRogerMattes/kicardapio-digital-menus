@@ -11,9 +11,6 @@ import { useAuthRestaurant } from "@/hooks/useAuthRestaurant";
 import { insert, executeQuery } from "@/lib/mysql";
 import QRCode from 'qrcode';
 
-// Add qrcode package
-<lov-add-dependency>qrcode@^1.5.3</lov-add-dependency>
-
 const QRCodesPage: React.FC = () => {
   const restaurantId = useAuthRestaurant();
   const [numberOfTables, setNumberOfTables] = useState<number>(1);
