@@ -20,6 +20,11 @@ const clearUser = () => {
   localStorage.removeItem('currentUser');
 };
 
+// Type definitions for our emulated Supabase client
+type QueryResult<T> = Promise<{ data: T[]; error: Error | null }>;
+type SingleQueryResult<T> = Promise<{ data: T | null; error: Error | null }>;
+type MutationResult = Promise<{ data: any; error: Error | null }>;
+
 // Emulate Supabase client structure with our MySQL functions
 export const supabase = {
   auth: {
@@ -127,101 +132,129 @@ export const supabase = {
     })
   },
 
-  from: (table: string) => ({
-    select: (columns = '*') => ({
-      eq: async (column: string, value: any) => {
-        try {
-          let query = `SELECT ${columns} FROM ${table} WHERE ${column} = ?`;
-          const data = await executeQuery(query, [value]);
-          return { data, error: null };
-        } catch (error) {
-          return { data: null, error };
-        }
-      },
+  from: (table: string) => {
+    // Base query builder for select operations
+    const selectQuery = (columns = '*') => {
+      // Storage for where clauses
+      const conditions: string[] = [];
+      const params: any[] = [];
+      let orderByClause = '';
+      let limitClause = '';
       
-      order: (column: string, { ascending = true } = {}) => ({
-        then: async (callback: Function) => {
+      // Chain methods
+      const builder = {
+        eq: (column: string, value: any) => {
+          conditions.push(`${column} = ?`);
+          params.push(value);
+          return builder;
+        },
+        
+        order: (column: string, { ascending = true } = {}) => {
+          const direction = ascending ? 'ASC' : 'DESC';
+          orderByClause = ` ORDER BY ${column} ${direction}`;
+          return builder;
+        },
+
+        limit: (count: number) => {
+          limitClause = ` LIMIT ${count}`;
+          return builder;
+        },
+
+        single: async (): SingleQueryResult<any> => {
           try {
-            const order = ascending ? 'ASC' : 'DESC';
-            let query = `SELECT ${columns} FROM ${table} ORDER BY ${column} ${order}`;
-            const data = await executeQuery(query);
-            return callback({ data, error: null });
+            let query = `SELECT ${columns} FROM ${table}`;
+            
+            if (conditions.length > 0) {
+              query += ` WHERE ${conditions.join(' AND ')}`;
+            }
+            
+            query += orderByClause + limitClause + ' LIMIT 1';
+            
+            const data = await querySingle(query, params);
+            return { data, error: null };
           } catch (error) {
-            return callback({ data: null, error });
+            return { data: null, error: error as Error };
+          }
+        },
+
+        select: async () => {
+          return builder.then();
+        },
+
+        then: async (): QueryResult<any> => {
+          try {
+            let query = `SELECT ${columns} FROM ${table}`;
+            
+            if (conditions.length > 0) {
+              query += ` WHERE ${conditions.join(' AND ')}`;
+            }
+            
+            query += orderByClause + limitClause;
+            
+            const data = await executeQuery(query, params);
+            return { data, error: null };
+          } catch (error) {
+            return { data: [], error: error as Error };
           }
         }
+      };
+      
+      return builder;
+    };
+
+    return {
+      select: (columns = '*') => selectQuery(columns),
+
+      insert: async (values: any[], options: { select?: boolean } = {}) => {
+        try {
+          const results = [];
+          for (const value of values) {
+            const id = await insert(table, value);
+            results.push({ ...value, id });
+          }
+          
+          if (options.select) {
+            return { data: results.length === 1 ? results[0] : results, error: null };
+          }
+          return { data: { rows: results }, error: null };
+        } catch (error) {
+          return { data: null, error: error as Error };
+        }
+      },
+
+      update: (values: any) => ({
+        eq: async (column: string, value: any) => {
+          try {
+            await update(table, values, `${column} = ?`, [value]);
+            return { data: null, error: null };
+          } catch (error) {
+            return { data: null, error: error as Error };
+          }
+        },
+        select: () => ({
+          single: async () => {
+            try {
+              // This is simplified - in a real app you'd fetch the updated record
+              return { data: { ...values }, error: null };
+            } catch (error) {
+              return { data: null, error: error as Error };
+            }
+          }
+        })
       }),
 
-      single: async () => {
-        try {
-          let query = `SELECT ${columns} FROM ${table} LIMIT 1`;
-          const data = await querySingle(query);
-          return { data, error: null };
-        } catch (error) {
-          return { data: null, error };
-        }
-      },
-
-      then: async (callback: Function) => {
-        try {
-          let query = `SELECT ${columns} FROM ${table}`;
-          const data = await executeQuery(query);
-          return callback({ data, error: null });
-        } catch (error) {
-          return callback({ data: null, error });
-        }
-      }
-    }),
-
-    insert: async (values: any[], options = {}) => {
-      try {
-        const results = [];
-        for (const value of values) {
-          const id = await insert(table, value);
-          results.push({ ...value, id });
-        }
-        
-        if (options.select) {
-          return { data: results.length === 1 ? results[0] : results, error: null };
-        }
-        return { data: { rows: results }, error: null };
-      } catch (error) {
-        return { data: null, error };
-      }
-    },
-
-    update: (values: any) => ({
-      eq: async (column: string, value: any) => {
-        try {
-          await update(table, values, `${column} = ?`, [value]);
-          return { data: null, error: null };
-        } catch (error) {
-          return { data: null, error };
-        }
-      },
-      select: () => ({
-        single: async () => {
+      delete: () => ({
+        eq: async (column: string, value: any) => {
           try {
-            // This is simplified - in a real app you'd fetch the updated record
-            return { data: { ...values }, error: null };
+            await remove(table, `${column} = ?`, [value]);
+            return { error: null };
           } catch (error) {
-            return { data: null, error };
+            return { error: error as Error };
           }
         }
       })
-    }),
-
-    delete: () => ({
-      eq: async (column: string, value: any) => {
-        try {
-          await remove(table, `${column} = ?`, [value]);
-          return { error: null };
-        } catch (error) {
-          return { error };
-        }
-      }
-    })
-  })
+    };
+  }
 };
 
 // Dummy function for compatibility

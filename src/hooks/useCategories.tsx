@@ -4,15 +4,30 @@ import { supabase } from "@/lib/supabase";
 import { useAuthRestaurant } from "./useAuthRestaurant";
 import { toast } from "sonner";
 
+interface Category {
+  id: string;
+  name: string;
+  description?: string;
+  image_url?: string;
+  display_order: number;
+  active: boolean;
+}
+
 export function useCategories() {
   const restaurantId = useAuthRestaurant();
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [uploadingImg, setUploadingImg] = useState(false);
 
   useEffect(() => {
     if (!restaurantId) return;
+    loadCategories();
+  }, [restaurantId]);
+
+  const loadCategories = () => {
+    if (!restaurantId) return;
     setIsLoading(true);
+    
     supabase
       .from("categories")
       .select("*")
@@ -20,19 +35,6 @@ export function useCategories() {
       .then(({ data, error }) => {
         if (error) return toast.error("Erro ao buscar categorias");
         setCategories(data || []);
-        setIsLoading(false);
-      });
-  }, [restaurantId]);
-
-  const reload = () => {
-    if (!restaurantId) return;
-    setIsLoading(true);
-    supabase
-      .from("categories")
-      .select("*")
-      .eq("restaurant_id", restaurantId)
-      .then(({ data, error }) => {
-        if (!error && data) setCategories(data);
         setIsLoading(false);
       });
   };
@@ -65,28 +67,32 @@ export function useCategories() {
       restaurant_id: restaurantId,
     };
 
-    let result;
-    if (cat.id) {
-      result = await supabase
-        .from("categories")
-        .update(newCat)
-        .eq("id", cat.id)
-        .select()
-        .single();
-    } else {
-      result = await supabase
-        .from("categories")
-        .insert([newCat])
-        .select()
-        .single();
-    }
-    if (result.error) {
+    try {
+      let result;
+      if (cat.id) {
+        const { data, error } = await supabase
+          .from("categories")
+          .update(newCat)
+          .eq("id", cat.id);
+          
+        if (error) throw error;
+        result = data;
+      } else {
+        const { data, error } = await supabase
+          .from("categories")
+          .insert([newCat]);
+          
+        if (error) throw error;
+        result = data;
+      }
+      
+      loadCategories();
+      toast.success("Categoria salva com sucesso!");
+      return true;
+    } catch (error) {
       toast.error("Erro ao salvar categoria");
       return false;
     }
-    reload();
-    toast.success("Categoria salva com sucesso!");
-    return true;
   }
 
   async function removeCategory(id: string) {
@@ -94,6 +100,8 @@ export function useCategories() {
     if (!error) {
       setCategories(categories.filter((c: any) => c.id !== id));
       toast.success("Categoria removida");
+    } else {
+      toast.error("Erro ao remover categoria");
     }
   }
 

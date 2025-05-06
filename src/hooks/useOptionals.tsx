@@ -4,9 +4,19 @@ import { supabase } from "@/lib/supabase";
 import { useAuthRestaurant } from "./useAuthRestaurant";
 import { toast } from "sonner";
 
+interface OptionalGroup {
+  id: string;
+  name: string;
+  description?: string;
+  min_selection: number;
+  max_selection: number;
+  price?: number;
+  tenant_id: string;
+}
+
 export function useOptionals() {
   const restaurantId = useAuthRestaurant();
-  const [optionalGroups, setOptionalGroups] = useState([]);
+  const [optionalGroups, setOptionalGroups] = useState<OptionalGroup[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -15,19 +25,22 @@ export function useOptionals() {
   }, [restaurantId]);
 
   const loadOptionals = async () => {
+    if (!restaurantId) return;
     setIsLoading(true);
-    const { data, error } = await supabase
+    
+    supabase
       .from("optionals")
       .select("*")
       .eq("tenant_id", restaurantId)
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      toast.error("Erro ao carregar itens opcionais");
-    } else {
-      setOptionalGroups(data || []);
-    }
-    setIsLoading(false);
+      .order("created_at", { ascending: false })
+      .then(({ data, error }) => {
+        if (error) {
+          toast.error("Erro ao carregar itens opcionais");
+        } else {
+          setOptionalGroups(data || []);
+        }
+        setIsLoading(false);
+      });
   };
 
   const createOptionalItem = async (values: any) => {
