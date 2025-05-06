@@ -1,6 +1,5 @@
 
 import { useEffect, useState } from "react";
-import { querySingle } from "@/lib/mysql";
 import { toast } from "sonner";
 
 // Simple session management
@@ -23,15 +22,9 @@ export function useAuthRestaurant() {
           return;
         }
 
-        // Get restaurant_id from restaurants_users table
-        const userRestaurant = await querySingle<{ restaurant_id: string }>(
-          `SELECT restaurant_id FROM restaurants_users WHERE user_id = ?`,
-          [user.id]
-        );
-
-        if (userRestaurant) {
-          setRestaurantId(userRestaurant.restaurant_id);
-        }
+        // For browser environment, use demo restaurant ID
+        const demoRestaurantId = "demo-restaurant-id";
+        setRestaurantId(demoRestaurantId);
       } catch (error) {
         console.error("Error fetching restaurant ID:", error);
         toast.error("Erro ao buscar informações do restaurante");
