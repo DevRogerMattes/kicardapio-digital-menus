@@ -24,7 +24,7 @@ export function useCategories() {
     loadCategories();
   }, [restaurantId]);
 
-  const loadCategories = () => {
+  const loadCategories = async () => {
     if (!restaurantId) return;
     setIsLoading(true);
     

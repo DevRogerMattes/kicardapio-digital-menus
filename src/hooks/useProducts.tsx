@@ -37,7 +37,7 @@ export function useProducts() {
     loadProducts();
   }, [restaurantId]);
 
-  const loadProducts = () => {
+  const loadProducts = async () => {
     if (!restaurantId) return;
     setIsLoading(true);
     
