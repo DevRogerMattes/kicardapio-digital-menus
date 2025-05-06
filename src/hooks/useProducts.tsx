@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuthRestaurant } from "./useAuthRestaurant";
@@ -37,7 +36,6 @@ export function useProducts() {
     loadProducts();
   }, [restaurantId]);
 
-  // Fixed: No parameters in the function definition
   const loadProducts = () => {
     if (!restaurantId) return;
     setIsLoading(true);

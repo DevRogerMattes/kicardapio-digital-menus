@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuthRestaurant } from "./useAuthRestaurant";
@@ -24,7 +23,6 @@ export function useOptionals() {
     loadOptionals();
   }, [restaurantId]);
 
-  // Fixed: No parameters in the function definition
   const loadOptionals = async () => {
     if (!restaurantId) return;
     setIsLoading(true);
