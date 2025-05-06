@@ -24,7 +24,7 @@ export function useOptionals() {
     loadOptionals();
   }, [restaurantId]);
 
-  // Changed to take no parameters to match how it's called in the useEffect
+  // Fixed: No parameters in the function definition
   const loadOptionals = async () => {
     if (!restaurantId) return;
     setIsLoading(true);
