@@ -37,6 +37,7 @@ export function useProducts() {
     loadProducts();
   }, [restaurantId]);
 
+  // Changed to take no parameters to match how it's called in the useEffect
   const loadProducts = () => {
     if (!restaurantId) return;
     setIsLoading(true);
