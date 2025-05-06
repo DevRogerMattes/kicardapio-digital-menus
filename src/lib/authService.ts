@@ -3,9 +3,6 @@ import { executeQuery, insert, querySingle } from "./mysql";
 import { toast } from "sonner";
 import bcryptjs from "bcryptjs";
 
-// Add bcrypt for password hashing
-<lov-add-dependency>bcryptjs@^2.4.3</lov-add-dependency>
-
 // User type definition
 export interface User {
   id: string;
